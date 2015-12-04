@@ -160,6 +160,6 @@ title(['$scale= ',num2str(scale),',th=',num2str(th),'$'],'Interpreter','latex')
 
 %% HOUGH - Q8
 
-[linepar,acc]=houghline(extractedge(small,1,80,'same'),Lv(small,'central','same'),200,200,50,3,3);
-
+%[linepar,acc]=houghline(extractedge(small,1,80,'valid'),Lv(small,'central','valid'),size(small,1),size(small,2),50,3,2);
+[linepar,acc]=houghline(extractedge(smallt,1,80,'valid'),Lv(smallt,'central','valid'),size(smallt,1),size(smallt,2),100,10,0,2);
 

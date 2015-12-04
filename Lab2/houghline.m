@@ -1,4 +1,4 @@
-function [linepar,acc] = houghline(curves, magnitude,nrho, ntheta, threshold, nlines, verbose)
+function [linepar,acc] = houghline(curves, magnitude,nrho, ntheta, threshold, nlines, sm, verbose)
 % linepar is a list of (ro;theta) parameters for each line segment,
 % acc is the accumulator matrix of the Hough transform,
 % curves are the polygons from which the transform is to be computed,
@@ -49,20 +49,27 @@ while trypointer <= insize
         rh=round(1/drho*(x*cos(theta)+y*sin(theta)+M))+1;
         th=round(1/dtheta*(theta+N))+1;        
         for t=th
-            acc(rh(t),t)=acc(rh(t),t)+1;%image(xi,yi);
+            acc(rh(t),t)=acc(rh(t),t)+1;%+image(xi,yi);
         end
     end
     trypointer = trypointer + 1;
   end
 end
+if sm
+    acc = binsepsmoothiter(acc,0.5,sm);
+end
 if ( verbose >= 2)
-    h1=figure;showgrey(image);
-    h2=figure;showgrey(acc);
+    figure;
+    subplot(1,3,1);
+    showgrey(image);
+    title('$Gradient$','Interpreter','latex')
+    subplot(1,3,2);
+    showgrey(acc);
+    title('$Accumulator$','Interpreter','latex')
 end
 
 % Extract local maxima from the accumulator
 % Delimit the number of responses if necessary
-
 [pos,value] = locmax8(acc);
 [~,indexvector] = sort(value);
 nmaxima = size(value, 1);
@@ -90,7 +97,7 @@ for idx = 1:nlines
     linepar(1, 4*(idx-1) + 4) = y0+dy;
     
     if ( verbose >= 2)
-        figure(h2);hold on;
+        subplot(1,3,2);hold on;
         plot(thetaidxacc,rhoidxacc,'rx');
         hold off;
     end
@@ -98,6 +105,12 @@ end
 
 % Overlay these curves on the gradient magnitude image
 if ( verbose >= 1)
-    figure(h1);overlaycurves(image,linepar);
+    if ( verbose >= 2 )
+        subplot(1,3,3);
+    else
+        figure;
+    end
+    overlaycurves(magnitude,linepar);
+    title('$Hough\:lines$','Interpreter','latex')
 end
 
