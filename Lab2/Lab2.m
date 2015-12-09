@@ -12,14 +12,14 @@ smallt = binsubsample(binsubsample(ht));
 %% Q1
 figure;
 
-% dxtools = conv2(tools, deltax('diff'), 'valid');
-% dytools = conv2(tools, deltay('diff'), 'valid');
-dxtools = conv2(tools, deltax('central'), 'valid');
-dytools = conv2(tools, deltay('central'), 'valid');
-% dxtools = conv2(tools, deltax('robert'), 'valid');
-% dytools = conv2(tools, deltay('robert'), 'valid');
-% dxtools = conv2(tools, deltax('sobel'), 'valid');
-% dytools = conv2(tools, deltay('sobel'), 'valid');
+dxtools1 = conv2(tools, deltax('diff'), 'valid');
+dytools1 = conv2(tools, deltay('diff'), 'valid');
+dxtools2 = conv2(tools, deltax('central'), 'valid');
+dytools2 = conv2(tools, deltay('central'), 'valid');
+dxtools3 = conv2(tools, deltax('robert'), 'valid');
+dytools3 = conv2(tools, deltay('robert'), 'valid');
+dxtools4 = conv2(tools, deltax('sobel'), 'valid');
+dytools4 = conv2(tools, deltay('sobel'), 'valid');
 
 
 % help conv2
@@ -34,27 +34,45 @@ dytools = conv2(tools, deltay('central'), 'valid');
 subplot(1,3,1);
 showgrey(tools)
 title('$original$','Interpreter','latex')
-subplot(1,3,2);
-showgrey(dxtools)
-title('$dx$','Interpreter','latex')
-subplot(1,3,3);
-showgrey(dytools)
+subplot(4,3,2);
+showgrey(dxtools1)
+title('$Diff: dx$','Interpreter','latex')
+subplot(4,3,3);
+showgrey(dytools1)
 title('$dy$','Interpreter','latex')
-
+subplot(4,3,5);
+showgrey(dxtools2)
+title('$Central: dx$','Interpreter','latex')
+subplot(4,3,6);
+showgrey(dytools2)
+title('$dy$','Interpreter','latex')
+subplot(4,3,8);
+showgrey(dxtools3)
+title('$Robert: dx$','Interpreter','latex')
+subplot(4,3,9);
+showgrey(dytools3)
+title('$dy$','Interpreter','latex')
+subplot(4,3,11);
+showgrey(dxtools4)
+title('$Sobel: dx$','Interpreter','latex')
+subplot(4,3,12);
+showgrey(dytools4)
+title('$dy$','Interpreter','latex')
 
 %% Q2-3
 
 figure;
-method = 'sobel';
-var=1.4;
-
-gradtools = Lv(tools,method,'same',var);
-gradhouse = Lv(house,method,'same',var);
+method = 'central';
+var=2;
+toolsg=discgaussfft(tools,var);
+houseg=discgaussfft(house,var);
+gradtools = Lv(toolsg,method,'same');
+gradhouse = Lv(houseg,method,'same');
 
 j=1;
 k=4;
-Thinit=80;
-Thend=2e3;
+Thinit=25;
+Thend=1e2;
 Th=linspace(Thinit,Thend,k);
 if (strcmp(method,'sobel')) Th=Th*10;end
 % RESULTS
@@ -78,10 +96,12 @@ figure;
 
 A=filter2(deltax,x.^2, 'valid');
 B=filter2(deltaxx, x.^2, 'valid');
-C=filter2(deltaxxx, x .^2, 'valid');
-D=filter2(deltax,y.^2, 'valid');
+C=filter2(deltaxx, sign(x), 'valid');
+D=filter2(deltaxxx, sign(x), 'valid');
 E=filter2(deltaxy, x.^2.*y.^2, 'valid');
 F=filter2(deltaxxy, x.^2.*y .^3, 'valid');
+
+
 
 subplot(2,3,1);
 showgrey(A,128);
@@ -90,17 +110,17 @@ subplot(2,3,2);
 showgrey(B,128,-10,10);
 title('$\delta_{xx}(x^2)$','Interpreter','latex')
 subplot(2,3,3);
-showgrey(C,128,-10,10);
-title('$\delta_{xxx}(x^2)$','Interpreter','latex')
+showgrey(C,128);
+title('$\delta_{xx}(sign(x))$','Interpreter','latex')
 subplot(2,3,4);
-showgrey(D,128,10,-10);
-title('$\delta_x(y^2)$','Interpreter','latex')
+showgrey(D,128);
+title('$\delta_{xxx}(sign(x))$','Interpreter','latex')
 subplot(2,3,5);
 showgrey(E,128);
 title('$\delta_{xy}(x^2y^2)$','Interpreter','latex')
 subplot(2,3,6);
 showgrey(F,128);
-title('$\delta_{xxy}(x^3y^3)$','Interpreter','latex')
+title('$\delta_{xxy}(x^2y^3)$','Interpreter','latex')
 
 
 %% Q4
@@ -142,24 +162,30 @@ end
 %% Q6
 figure;
 
-i=1;
-
 subplot(1,2,1);
-scale=0.5;
-th=200;
+scale=2;
+th=80;
 edges = extractedge(tools,scale,th,'same');
 overlaycurves(tools, edges);
 title(['$scale= $',num2str(scale),'$,th=',num2str(th),'$'],'Interpreter','latex')
 
 subplot(1,2,2);
-scale=1.4;
-th=80;
-edges = extractedge(house,scale,th,'same');
+scale=2;
+th=70;
+[edges,~,lvv,lvvv] = extractedge(house,scale,th,'same');
 overlaycurves(house, edges);
 title(['$scale= ',num2str(scale),',th=',num2str(th),'$'],'Interpreter','latex')
+% figure;
+% overlaycurves(lvv, edges);
+% figure;
+% overlaycurves(lvvv<0, edges);
 
 %% HOUGH - Q8
 
-%[linepar,acc]=houghline(extractedge(small,1,80,'valid'),Lv(small,'central','valid'),size(small,1),size(small,2),50,3,2);
-[linepar,acc]=houghline(extractedge(smallt,1,80,'valid'),Lv(smallt,'central','valid'),size(smallt,1),size(smallt,2),100,10,0,2);
+% [linepar,acc]=houghline(extractedge(small,1,80,'valid'),Lv(small,'central','valid'),size(small,1),size(small,2),50,3,2);
+%[linepar,acc]=houghline(extractedge(smallt,1,80,'valid'),Lv(smallt,'central','valid'),size(smallt,1),size(smallt,2),100,10,0,2);
+[linepar,acc]=houghedgeline(triangle,1,20,400,360,3,0,2);
+[linepar,acc]=houghedgeline(ht,1,10,200,180,10,0,2);
 
+[linepar,acc]=houghedgeline(tools,2,80,200,180,10,0,2);
+[linepar,acc]=houghedgeline(house,8,2,200,180,10,1,2);
