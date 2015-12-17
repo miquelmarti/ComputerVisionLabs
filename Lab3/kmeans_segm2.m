@@ -1,4 +1,4 @@
-function [ segmentation, centers ] = kmeans_segm(img, K, L, seed, verbose)
+function [ segmentation, centers ] = kmeans_segm2(img, K, L, seed, verbose)
 % function [ segmentation, centers ] = kmeans_segm(image, K, L, seed)
 % given an image, the number of cluster centers K, number of iterations L
 % and a seed for initializing randomization, computes a segmentation
@@ -11,8 +11,9 @@ MEANDEV=30;
 imgR=double(img);
 max_col=max(imgR(:));
 height=size(img,1);
-width=size(img,2);%UNCOMMENT FOR FIRST CASES
-imgR=reshape(imgR,width*height,3); % UNCOMMENT FOR FIRST CASES
+% width=size(img,2);%UNCOMMENT FOR FIRST CASES
+width=1;
+% imgR=reshape(imgR,width*height,3); % UNCOMMENT FOR FIRST CASES
 segmentation=ones(width*height,1);
 % Randomly initialize the K cluster centers
 if isempty(seed)
@@ -75,6 +76,10 @@ for i=1:L
         end
     end
 end
+if sum(isnan(centers(:)))~= 0
+        id=find(isnan(centers(:,1))==1);
+        centers(id',:)=rand([size(id),3])*max_col;
+end
 if verbose >= 1
     figure;
     if verbose >=2
@@ -94,5 +99,5 @@ if verbose >= 1
         close(v);
     end
 end
- segmentation=reshape(segmentation,height,width,1); %UNCOMMENT FOR FIRST
+%  segmentation=reshape(segmentation,height,width,1); %UNCOMMENT FOR FIRST
 %  CASES
