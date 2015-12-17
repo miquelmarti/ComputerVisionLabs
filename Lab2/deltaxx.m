@@ -1,4 +1,4 @@
-function DX = deltax()
+function DX = deltaxx()
 % Returns a mask for approximation second partial derivative in
 % x-axis
 

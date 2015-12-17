@@ -6,7 +6,7 @@ if nargin < 1
 end
 switch method
     case 'diff'
-        DY=[1,-1;1,-1]';
+        DY=[-1,1;-1,1]';
     case 'central'
         DY=[0,0,0,0,0;0,0,0,0,0;0,-1,0,1,0;0,0,0,0,0;0,0,0,0,0]'*1/2;
     case 'sobel'
